@@ -101,13 +101,13 @@
 
 
 require("dotenv").config();
-import express, { Request, Response } from "express";
+import express, { Request, Response, Router } from "express";
 import cors from "cors";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { BASE_PROMPT, getSystemPrompt } from "./prompts";
 import { basePrompt as nodeBasePrompt } from "./defaults/node";
 import { basePrompt as reactBasePrompt } from "./defaults/react";
-
+const router = Router();
 // Initialize Gemini SDK
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -128,7 +128,7 @@ app.post("/template", async (req: Request, res: Response) => {
   ]);
 
   const answer = result.response.text().trim().toLowerCase();
-
+  console.log("Answer:", answer);
   if (answer === "react") {
     res.json({
       prompts: [
@@ -153,39 +153,71 @@ app.post("/template", async (req: Request, res: Response) => {
   res.status(403).json({ message: "You can't access this" });
 });
 
-app.post("/chat", async (req: Request, res: Response) => {
-  const userMessages = req.body.messages;
+// app.post("/chat", async (req: Request, res: Response) => {
+
+//   const userMessages = req.body.messages;
     
-  // Combine the system prompt with user messages
-  const systemPrompt = getSystemPrompt();
-  const conversation = model.startChat();
-  const firstMessage = userMessages[0];
-  userMessages[0] = {
-    content: `${systemPrompt}\n\nUSER: ${firstMessage.content}`
-  };
+//   // Combine the system prompt with user messages
+//   const systemPrompt = getSystemPrompt();
+//   const conversation = model.startChat();
+//   const firstMessage = userMessages[0];
+//   userMessages[0] = {
+//     content: `${systemPrompt}\n\nUSER: ${firstMessage.content}`
+//   };
   
-  // First, send the system prompt
-  await conversation.sendMessage(`INSTRUCTIONS: ${systemPrompt}`);
-//   console.log("System prompt:\n", systemPrompt);
-//   console.log("First user message:\n", userMessages[0].content);
+//   await conversation.sendMessage(`INSTRUCTIONS: ${systemPrompt}`);
+
+//   // Then send each user message
+//   let finalResponse = "";
+//   for (const message of userMessages) {
+//     const result = await conversation.sendMessage(message.content);
+//     const text = result.response.text();
+//     finalResponse += text;
+
+
+//     console.log(text);
+//   }
+// //   const newResponse = await model.generateContentStream(finalResponse);
+// //   for await (const chunk of newResponse.stream) {
+// //     const text = chunk.text();
+// //     if (text) {
+// //       console.log(text);
+// //     }
+// //   }
+//   console.log(finalResponse);
+//   res.json({ response: finalResponse });
+// });
+
+
+app.post("/chat", async (req, res) => {
+    const messages = req.body.messages; // Expecting [{ role: "user", parts: [{ text: "your message" }] }, ...]
   
-  // Then send each user message
-  let finalResponse = "";
-  for (const message of userMessages) {
-    const result = await conversation.sendMessage(message.content);
-    const text = result.response.text();
-    finalResponse += text;
-
-    // Here you can imagine sending partial updates if you use websockets or SSE
-    // But with express HTTP, you can't stream incremental responses easily
-    // Just for example, you could console.log partials:
-    console.log(text);
-  }
-
-  console.log(finalResponse);
-
-  res.json({ response: finalResponse });
-});
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash"
+    });
+  
+    try {
+      const result = await model.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: getSystemPrompt() }]
+          },
+          ...messages
+        ]
+      });
+  
+      const responseText = result.response.text();
+      console.log("Gemini response:", responseText);
+  
+      res.json({
+        response: responseText
+      });
+    } catch (err) {
+      console.error("Error during Gemini response:", err);
+      res.status(500).json({ error: "Failed to generate content." });
+    }
+  });
 
 app.listen(3000, () => {
   console.log("Server listening on port 3000");
