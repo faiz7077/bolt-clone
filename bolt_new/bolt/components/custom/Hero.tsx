@@ -1,5 +1,6 @@
 "use client"
 import { MessagesContext } from '@/context/MessagesContext'
+import { UserDetailContext } from '@/context/UserDetailContext'
 import Colors from '@/data/Colors'
 import Lookup from '@/data/Lookup'
 import { on } from 'events'
@@ -11,7 +12,11 @@ type Props = {}
 export default function Hero({}: Props) {
     const[userInput, setUserInput] = useState<string | undefined>();
     const [messages, setMessages] = useContext(MessagesContext);
+    const [userDetail, setUserDetail] = useContext(UserDetailContext);       
     const onGenerate = (input) => {
+        if(!userDetail?.name ){
+            return;
+        }
         setMessages({
             role: 'user',
             content: input
