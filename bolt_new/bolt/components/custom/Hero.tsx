@@ -10,8 +10,11 @@ import React, { useContext, useState } from 'react'
 type Props = {}
 
 export default function Hero({}: Props) {
+    const context = useContext(MessagesContext);
     const[userInput, setUserInput] = useState<string | undefined>();
-    const [messages, setMessages] = useContext(MessagesContext);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {messages, setMessages}= context;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [userDetail, setUserDetail] = useContext(UserDetailContext);       
     const onGenerate = (input) => {
         if(!userDetail?.name ){
@@ -39,7 +42,7 @@ export default function Hero({}: Props) {
                 className='pl-3 bg-blue-500 p-2 h-10 w-10 rounded cursor-pointer' />}      
             </div>
             <div>
-                <Link className='h-5 w-5'></Link>
+                <Link className='h-5 w-5 cursor-pointer '></Link>
             </div>
         </div>
         <div className='flex flex-wrap max-w-2xl justify-center gap-4 mt-5 '>
