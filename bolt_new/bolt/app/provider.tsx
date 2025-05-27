@@ -4,27 +4,32 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { MessagesContext } from '@/context/MessagesContext'
 import Header from '@/components/custom/Header'
 import { UserDetailContext } from '@/context/UserDetailContext'
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
-type Props = {}
+type Props = {
+    clientId: string;
+}
 
 function Provider({children}: React.PropsWithChildren<Props>) {
-    const [messages, setMessages] = React.useState<string | null>(null);
-    const [userDetail, setUserDetail] = React.useState<string | null>(null);     
+    const {messages, setMessages} = React.useState<string | null>(null);
+    const {userDetail, setUserDetail} = React.useState<string | null>(null);     
   return (
     <div>
-        <UserDetailContext.Provider value={[]}>
-            <MessagesContext.Provider value={{messages, setMessages}}>
-                <NextThemesProvider  
-                    attribute="class"
-                    defaultTheme="dark"
-                    enableSystem
-                    disableTransitionOnChange
-                >
-                <Header/>
-                {children}
-                </NextThemesProvider>
-            </MessagesContext.Provider>
-        </UserDetailContext.Provider>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID_KEY || ''}>
+            <UserDetailContext.Provider value={{userDetail, setUserDetail}}>
+                <MessagesContext.Provider value={{messages, setMessages}}>
+                    <NextThemesProvider  
+                        attribute="class"
+                        defaultTheme="dark"
+                        enableSystem
+                        disableTransitionOnChange
+                    >
+                    <Header/>
+                    {children}
+                    </NextThemesProvider>
+                </MessagesContext.Provider>
+            </UserDetailContext.Provider>
+        </GoogleOAuthProvider>
     </div>
   )
 }

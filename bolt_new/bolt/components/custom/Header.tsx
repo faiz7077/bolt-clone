@@ -9,7 +9,7 @@ type Props = {}
 export default function Header({}: Props) {
   return (
     <div className='p-4 flex justify-between items-center '>
-        <Image src="/logo.png" alt='Logo' width={70} height={40}/>
+        <Image className="cursor-pointer" src="/logo.png" alt='Logo' width={70} height={40}/>
         <div className='flex gap-4'>
             <Button variant="ghost" className='cursor-pointer'>
                 SignIn
