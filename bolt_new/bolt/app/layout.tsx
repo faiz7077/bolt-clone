@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/custom/Header";
 // import { ThemeProvider } from "@/components/ui/themeprovide";
 import Provider from "./provider";
+import ConvexClientProvider from "./ConvexClientProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +31,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         <Provider>
-            {children}
-          </Provider>
-        
+        <ConvexClientProvider>
+            <Provider clientId={""}>
+              {children}
+            </Provider>
+        </ConvexClientProvider>
       
       </body>
     </html>
