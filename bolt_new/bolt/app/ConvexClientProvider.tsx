@@ -12,7 +12,7 @@ const ConvexClientProvider = ({ children }: Props) => {
   
   return (
     <>
-      return <ConvexProvider client={convex}>{children}</ConvexProvider>
+      <ConvexProvider client={convex}>{children}</ConvexProvider>
     </>
   )
 }
